@@ -1,4 +1,3 @@
-import customerRouter from "./routes/customer.js";
 import "dotenv/config";
 import dns from "node:dns";
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
@@ -9,6 +8,8 @@ import uploadRouter from "./routes/upload.js";
 import servicesRouter from "./routes/services.js";
 import vendorRouter from "./routes/vendor.js";
 import bookingsRouter from "./routes/bookings.js";
+import customerRouter from "./routes/customer.js";
+import adminRouter from "./routes/admin.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -21,7 +22,7 @@ app.use(
   })
 );
 
-// Stripe webhook route pore ekhane boshbe (express.json() er AGE)
+
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -33,6 +34,7 @@ app.use("/services", servicesRouter);
 app.use("/vendor", vendorRouter);
 app.use("/bookings", bookingsRouter);
 app.use("/customer", customerRouter);
+app.use("/admin", adminRouter);
 
 app.use(notFound);
 app.use(errorHandler);
