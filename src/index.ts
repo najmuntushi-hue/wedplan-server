@@ -1,3 +1,4 @@
+import customerRouter from "./routes/customer.js";
 import "dotenv/config";
 import dns from "node:dns";
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
@@ -31,6 +32,7 @@ app.use("/upload", uploadRouter);
 app.use("/services", servicesRouter);
 app.use("/vendor", vendorRouter);
 app.use("/bookings", bookingsRouter);
+app.use("/customer", customerRouter);
 
 app.use(notFound);
 app.use(errorHandler);
