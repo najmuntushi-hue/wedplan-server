@@ -6,6 +6,7 @@ import cors from "cors";
 import { connectDB } from "./config/db.js";
 import uploadRouter from "./routes/upload.js";
 import servicesRouter from "./routes/services.js";
+import vendorRouter from "./routes/vendor.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -17,7 +18,6 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -26,6 +26,7 @@ app.get("/", (_req, res) => {
 
 app.use("/upload", uploadRouter);
 app.use("/services", servicesRouter);
+app.use("/vendor", vendorRouter);
 
 app.use(notFound);
 app.use(errorHandler);
