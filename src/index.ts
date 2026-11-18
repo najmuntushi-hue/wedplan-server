@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.js";
 import uploadRouter from "./routes/upload.js";
 import servicesRouter from "./routes/services.js";
 import vendorRouter from "./routes/vendor.js";
+import bookingsRouter from "./routes/bookings.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -18,6 +19,8 @@ app.use(
     credentials: true,
   })
 );
+
+// Stripe webhook route pore ekhane boshbe (express.json() er AGE)
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -27,6 +30,7 @@ app.get("/", (_req, res) => {
 app.use("/upload", uploadRouter);
 app.use("/services", servicesRouter);
 app.use("/vendor", vendorRouter);
+app.use("/bookings", bookingsRouter);
 
 app.use(notFound);
 app.use(errorHandler);
