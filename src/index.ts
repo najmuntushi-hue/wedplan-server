@@ -5,6 +5,8 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import uploadRouter from "./routes/upload.js";
+import servicesRouter from "./routes/services.js";
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +25,10 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/upload", uploadRouter);
+app.use("/services", servicesRouter);
+
+app.use(notFound);
+app.use(errorHandler);
 
 async function start() {
   await connectDB();
