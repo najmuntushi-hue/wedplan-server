@@ -4,10 +4,10 @@ import { getDB } from "../config/db.js";
 import { verifyJWT } from "../middleware/verifyJWT.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { serviceSchema, serviceUpdateSchema } from "../validators/service.js";
+import { paramId } from "../utils/params.js";
 
 const router = Router();
 router.use(verifyJWT, requireRole("vendor"));
-
 const FREE_LIMIT = 3;
 
 function isPremium(user: any) {
@@ -23,6 +23,30 @@ async function activeCount(vendorId: ObjectId) {
     .collection("services")
     .countDocuments({ vendorId, isActive: true, status: { $ne: "rejected" } });
 }
+
+// GET /vendor/stats
+router.get("/stats", async (req, res, next) => {
+  try {
+    const vendorId = req.user!._id;
+    const services = getDB().collection("services");
+    const bookings = getDB().collection("bookings");
+    const [totalServices, activeServices, pendingBookings, acceptedBookings] = await Promise.all([
+      services.countDocuments({ vendorId }),
+      services.countDocuments({ vendorId, isActive: true, status: "approved" }),
+      bookings.countDocuments({ vendorId, status: "pending" }),
+      bookings.countDocuments({ vendorId, status: "accepted" }),
+    ]);
+    res.json({
+      totalServices,
+      activeServices,
+      pendingBookings,
+      acceptedBookings,
+      plan: isPremium(req.user) ? "premium" : "free",
+    });
+  } catch (e) {
+    next(e);
+  }
+});
 
 // GET /vendor/services
 router.get("/services", async (req, res, next) => {
@@ -69,7 +93,7 @@ router.post("/services", async (req, res, next) => {
 // PATCH /vendor/services/:id  (edit info)
 router.patch("/services/:id", async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = paramId(req.params.id);
     if (!ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid service ID" });
 
     const parsed = serviceUpdateSchema.safeParse(req.body);
@@ -98,7 +122,7 @@ router.patch("/services/:id", async (req, res, next) => {
 // PATCH /vendor/services/:id/availability  (toggle active)
 router.patch("/services/:id/availability", async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = paramId(req.params.id);
     if (!ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid service ID" });
 
     const services = getDB().collection("services");
@@ -108,15 +132,15 @@ router.patch("/services/:id/availability", async (req, res, next) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const next_ = !existing.isActive;
-    if (next_ && !isPremium(req.user) && (await activeCount(req.user!._id)) >= FREE_LIMIT) {
+    const nextActive = !existing.isActive;
+    if (nextActive && !isPremium(req.user) && (await activeCount(req.user!._id)) >= FREE_LIMIT) {
       return res.status(403).json({
         message: "Free plan allows a maximum of 3 active services. Upgrade to Premium.",
       });
     }
 
-    await services.updateOne({ _id: existing._id }, { $set: { isActive: next_ } });
-    res.json({ isActive: next_ });
+    await services.updateOne({ _id: existing._id }, { $set: { isActive: nextActive } });
+    res.json({ isActive: nextActive });
   } catch (e) {
     next(e);
   }
@@ -125,7 +149,7 @@ router.patch("/services/:id/availability", async (req, res, next) => {
 // DELETE /vendor/services/:id
 router.delete("/services/:id", async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = paramId(req.params.id);
     if (!ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid service ID" });
 
     const services = getDB().collection("services");
