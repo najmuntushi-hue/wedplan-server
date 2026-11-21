@@ -4,7 +4,8 @@ Express.js REST API for the WedPlan wedding planning platform.
 
 ## Live API
 
-- API: https://YOUR-SERVER-URL
+- API: https://wedplan-server-4cye.onrender.com
+- Live site: https://wedplan-client-wine.vercel.app
 - Client repo: https://github.com/najmuntushi-hue/wedplan-client
 - Server repo: https://github.com/najmuntushi-hue/wedplan-server
 
@@ -71,6 +72,6 @@ ADMIN_EMAIL=
 
 | Purpose | Local | Production |
 |---|---|---|
-| Client (CORS) | http://localhost:3000 | https://YOUR-CLIENT.vercel.app |
-| JWKS_URL | http://localhost:3000/api/auth/jwks | https://YOUR-CLIENT.vercel.app/api/auth/jwks |
-| Stripe webhook | localhost:5000/payments/webhook | https://YOUR-SERVER-URL/payments/webhook |
+| Client (CORS) | http://localhost:3000 | https://wedplan-client-wine.vercel.app |
+| JWKS_URL | http://localhost:3000/api/auth/jwks | https://wedplan-client-wine.vercel.app/api/auth/jwks |
+| Stripe webhook | localhost:5000/payments/webhook | https://wedplan-server-4cye.onrender.com/payments/webhook |
