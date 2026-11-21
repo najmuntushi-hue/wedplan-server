@@ -10,8 +10,10 @@ import vendorRouter from "./routes/vendor.js";
 import bookingsRouter from "./routes/bookings.js";
 import customerRouter from "./routes/customer.js";
 import adminRouter from "./routes/admin.js";
-import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import usersRouter from "./routes/users.js";
+import paymentsRouter, { stripeWebhook } from "./routes/payments.js";
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -22,6 +24,8 @@ app.use(
   })
 );
 
+// Stripe webhook MUST come before express.json() (needs the raw body)
+app.post("/payments/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 
 app.use(express.json());
 
@@ -36,6 +40,7 @@ app.use("/bookings", bookingsRouter);
 app.use("/customer", customerRouter);
 app.use("/admin", adminRouter);
 app.use("/users", usersRouter);
+app.use("/payments", paymentsRouter);
 
 app.use(notFound);
 app.use(errorHandler);
